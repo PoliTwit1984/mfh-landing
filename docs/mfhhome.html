@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MFH - My Favorite Human</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- HTML2Canvas -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <style>
+        /* --- LIQUID GLASS DESIGN SYSTEM --- */
+        
+        :root {
+            /* DEFAULT THEME (ROSE) */
+            --primary-50: #fff1f2;
+            --primary-100: #ffe4e6;
+            --primary-200: #fecdd3;
+            --primary-300: #fda4af;
+            --primary-400: #fb7185; /* Brand Sparkle Color */
+            --primary-500: #f43f5e; /* Main Rose */
+            --primary-600: #e11d48; /* Text Rose */
+            
+            /* Glass Variables */
+            --glass-border: 1px solid rgba(255, 255, 255, 0.4);
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #fdf2f8 0%, var(--primary-50) 25%, #ddd6fe 50%, #fffbeb 75%, #fdf2f8 100%);
+            background-size: 400% 400%;
+            animation: gradientMove 15s ease infinite;
+            color: #4a4a4a;
+            min-height: 100vh;
+            transition: background 0.5s ease;
+        }
+
+        /* Utility classes using CSS variables for theming */
+        .text-theme-600 { color: var(--primary-600); }
+        .text-theme-500 { color: var(--primary-500); }
+        .bg-theme-50 { background-color: var(--primary-50); }
+        .bg-theme-100 { background-color: var(--primary-100); }
+        .border-theme-200 { border-color: var(--primary-200); }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .brand-watermark {
+            position: fixed;
+            bottom: -50px;
+            right: -50px;
+            width: 650px;
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 0;
+            transform: rotate(-10deg);
+            filter: grayscale(100%); 
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .font-serif { font-family: 'Playfair Display', serif; }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: var(--glass-border);
+            box-shadow: var(--glass-shadow);
+        }
+
+        .nav-item-active {
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 12px rgba(0,0,0, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            color: var(--primary-600); /* Uses theme color */
+        }
+
+        .glass-card-hover { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .glass-card-hover:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.12);
+        }
+
+        .hero-gradient { background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 50%); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .fab-menu {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            transform: translateY(20px) scale(0.9);
+            pointer-events: none;
+        }
+        .fab-menu.active { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+        .fab-backdrop { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .fab-backdrop.active { opacity: 1; pointer-events: auto; }
+        
+        .fab-item { opacity: 0; transform: translateY(10px); transition: all 0.3s ease; }
+        .fab-menu.active .fab-item { opacity: 1; transform: translateY(0); }
+        .fab-menu.active .fab-item:nth-child(7) { transition-delay: 0.05s; }
+        .fab-menu.active .fab-item:nth-child(6) { transition-delay: 0.08s; }
+        .fab-menu.active .fab-item:nth-child(5) { transition-delay: 0.11s; }
+        .fab-menu.active .fab-item:nth-child(4) { transition-delay: 0.14s; }
+        .fab-menu.active .fab-item:nth-child(3) { transition-delay: 0.17s; }
+        .fab-menu.active .fab-item:nth-child(2) { transition-delay: 0.20s; }
+        .fab-menu.active .fab-item:nth-child(1) { transition-delay: 0.23s; }
+
+        .heartboard-tag { backdrop-filter: blur(8px); background: rgba(255,255,255,0.9); }
+
+        .sparkle-deco::after {
+            content: "✨";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 24px;
+            color: var(--primary-400); 
+            opacity: 0.8;
+            animation: pulse-sparkle 3s infinite;
+        }
+        @keyframes pulse-sparkle {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+        
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            bottom: 20px;
+            left: 23px;
+            width: 2px;
+            background: #e5e7eb;
+            z-index: 0;
+        }
+
+        .draggable-image {
+            cursor: grab;
+            transition: none; 
+        }
+        .draggable-image.dragging {
+            cursor: grabbing;
+        }
+        .reposition-hint {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .hero-card:hover .reposition-hint {
+            opacity: 1;
+        }
+
+        /* TOOLTIP STYLES */
+        .tooltip-content {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px) translateX(-50%);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+        /* Show tooltip on hover OR when a specific class is added via click */
+        .group\/tooltip:hover .tooltip-content,
+        .group\/tooltip.active .tooltip-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) translateX(-50%);
+        }
+
+        /* LIGHTBOX STYLES */
+        .lightbox {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .lightbox.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .lightbox-img {
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .lightbox.active .lightbox-img {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden" id="dashboard-body">
+
+    <img src="https://i.imgur.com/d7sTOM0.png" class="brand-watermark" alt="Brand Watermark">
+
+    <!-- TOP NAV BAR -->
+    <nav class="fixed top-0 w-full z-50 glass-panel border-b-0 border-white/40 h-24 flex items-center justify-between px-6 lg:px-12 transition-all duration-300" data-html2canvas-ignore="true">
+        <div class="flex items-center gap-5 group cursor-pointer">
+            <img src="https://i.imgur.com/d7sTOM0.png" 
+                 class="h-16 w-auto drop-shadow-md group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300" 
+                 alt="MFH Logo">
+            
+            <div class="flex flex-col justify-center">
+                <h1 class="font-serif font-bold text-3xl tracking-tight text-gray-900 leading-none">MFH</h1>
+                <span class="text-[11px] uppercase tracking-[0.25em] text-theme-500 font-bold mt-1.5 opacity-90">My Favorite Human</span>
+            </div>
+        </div>
+        
+        <div class="hidden md:flex flex-col items-center justify-center relative">
+            <span class="text-lg font-serif italic text-theme-500 font-medium tracking-wide">
+                "Love lives in the details."
+            </span>
+            <div class="w-12 h-0.5 bg-theme-100 mt-1 rounded-full"></div>
+            <i data-lucide="sparkle" class="text-amber-300 absolute -right-8 -top-1 w-4 h-4 animate-pulse fill-amber-300"></i>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <!-- THEME SWITCHER -->
+            <button onclick="toggleTheme()" class="w-11 h-11 rounded-full bg-white/50 hover:bg-white flex items-center justify-center transition-colors shadow-sm border border-white/20 group" title="Change Theme">
+                <i data-lucide="palette" class="text-gray-600 w-5 h-5 group-hover:text-theme-500 transition-colors"></i>
+            </button>
+
+            <!-- SCREENSHOT BUTTON -->
+            <button onclick="takeScreenshot()" class="w-11 h-11 rounded-full bg-white/50 hover:bg-white flex items-center justify-center transition-colors shadow-sm border border-white/20 group" title="Save Screenshot">
+                <i data-lucide="camera" class="text-gray-600 w-5 h-5 group-hover:text-theme-500 transition-colors"></i>
+            </button>
+
+            <div class="h-11 w-11 rounded-full bg-gradient-to-tr from-rose-400 to-violet-400 p-[2px] cursor-pointer shadow-md hover:shadow-lg transition-shadow">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" class="rounded-full w-full h-full object-cover border-2 border-white" alt="Profile">
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN LAYOUT -->
+    <main id="capture-area" class="pt-32 pb-12 px-4 md:px-8 lg:px-12 max-w-[1440px] mx-auto min-h-screen relative z-10">
+        
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
+
+            <!-- LEFT NAVIGATION -->
+            <aside class="hidden md:block md:col-span-3 lg:col-span-2 sticky top-32">
+                <div id="main-nav" class="flex flex-col gap-2 min-h-[400px] pr-4">
+                    <div class="px-3 py-2 text-[10px] font-bold text-theme-500 uppercase tracking-[0.15em] mb-1 opacity-80">Menu</div>
+                    
+                    <a href="#" class="nav-item-active flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all group">
+                        <i data-lucide="home" class="w-5 h-5"></i>
+                        <span class="font-bold tracking-tight">Home</span>
+                    </a>
+                    
+                    <a href="#" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl hover:bg-white/40 text-gray-500 hover:text-gray-900 transition-all group">
+                        <i data-lucide="history" class="w-5 h-5 group-hover:scale-110 transition-transform text-gray-400 group-hover:text-gray-600"></i>
+                        <span class="font-medium">Timeline</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl hover:bg-white/40 text-gray-500 hover:text-gray-900 transition-all group">
+                        <i data-lucide="heart" class="w-5 h-5 group-hover:scale-110 transition-transform text-gray-400 group-hover:text-theme-500"></i>
+                        <span class="font-medium">Memories</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl hover:bg-white/40 text-gray-500 hover:text-gray-900 transition-all group">
+                        <i data-lucide="calendar-heart" class="w-5 h-5 group-hover:scale-110 transition-transform text-gray-400 group-hover:text-gray-600"></i>
+                        <span class="font-medium">Dates</span>
+                    </a>
+                    
+                    <div class="px-3 py-2 text-[10px] font-bold text-theme-500 uppercase tracking-[0.15em] mt-6 mb-1 opacity-80">Saved</div>
+                    
+                    <a href="#" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl hover:bg-white/40 text-gray-500 hover:text-gray-900 transition-all group">
+                        <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-500/80 group-hover:scale-110 transition-transform"></i>
+                        <span class="font-medium">Intentions</span>
+                        <span class="ml-auto bg-white/60 text-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">2</span>
+                    </a>
+                    
+                    <a href="#" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl hover:bg-white/40 text-gray-500 hover:text-gray-900 transition-all group">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-violet-500/80 group-hover:scale-110 transition-transform"></i>
+                        <span class="font-medium">Heartboard</span>
+                        <span class="ml-auto bg-white/60 text-violet-600 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">12</span>
+                    </a>
+                </div>
+
+                <div class="mt-4 glass-panel rounded-2xl p-5 text-center relative overflow-hidden group cursor-pointer hover:scale-[1.02] transition-transform shadow-lg border-white/50">
+                    <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-rose-400 via-violet-400 to-amber-400"></div>
+                    <div class="text-[10px] text-gray-400 font-bold mb-1 tracking-widest uppercase mt-1">Days Together</div>
+                    <div class="font-serif text-5xl text-gray-800 my-2 tracking-tight">4,802</div>
+                    <div class="text-[10px] text-gray-400 mt-1 font-medium bg-white/50 inline-block px-2 py-0.5 rounded-full">OCT 21, 2012</div>
+                </div>
+            </aside>
+
+            <!-- CENTER COLUMN -->
+            <section class="col-span-1 md:col-span-9 lg:col-span-7 flex flex-col gap-6">
+
+                <!-- HERO CARD with DRAG TO REPOSITION, TOOLTIP & LIGHTBOX -->
+                <!-- Added onclick handler to open lightbox, but uses JS to prevent if dragging -->
+                <div class="relative w-full h-80 rounded-3xl overflow-hidden shadow-xl group hero-card select-none" id="heroCard">
+                    <!-- The Draggable Image -->
+                    <img id="heroImage" 
+                         src="https://images.unsplash.com/photo-1621184455862-c163dfb30e0f?q=80&w=1200&auto=format&fit=crop" 
+                         class="w-full h-full object-cover absolute top-0 left-0 draggable-image" 
+                         style="object-position: 50% 50%; width: 100%; height: 140%;"
+                         alt="Holly">
+                    
+                    <!-- Reposition Hint Badge -->
+                    <div class="reposition-hint absolute top-4 right-4 z-20 bg-black/40 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full pointer-events-none flex items-center gap-1 border border-white/20">
+                        <i data-lucide="move" class="w-3 h-3"></i> Drag to Reposition
+                    </div>
+
+                    <!-- Overlay Content -->
+                    <div class="absolute inset-0 hero-gradient flex flex-col justify-end p-6 lg:p-10 pointer-events-none">
+                        <div class="flex items-end justify-between pointer-events-auto"> <!-- Enable pointer events for buttons -->
+                            <div>
+                                <h2 class="font-serif text-6xl text-white tracking-wide drop-shadow-lg mb-3">Holly</h2>
+                                <p class="text-white/90 font-light text-sm flex items-center gap-2 backdrop-blur-md bg-white/10 w-fit px-4 py-1.5 rounded-full border border-white/20">
+                                    <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> Current Vibe: Creative & Focused
+                                </p>
+                            </div>
+                            
+                            <!-- INTERACTIVE LOVE LANGUAGE BADGE (Clickable) -->
+                            <div class="group/tooltip relative" onclick="event.stopPropagation(); toggleTooltip(this)">
+                                <div class="glass-panel px-5 py-2.5 rounded-full flex items-center gap-2 bg-white/30 border-white/40 backdrop-blur-xl shadow-lg cursor-help transition-transform hover:scale-105 active:scale-95">
+                                    <i data-lucide="clock" class="text-amber-200 w-4 h-4"></i>
+                                    <span class="text-sm font-bold text-white tracking-widest uppercase">Quality Time</span>
+                                    <i data-lucide="info" class="w-3 h-3 text-white/70 ml-1"></i>
+                                </div>
+
+                                <!-- The Tooltip -->
+                                <div class="tooltip-content absolute bottom-full left-1/2 mb-3 w-64 bg-white/95 backdrop-blur-xl rounded-2xl p-4 shadow-xl border border-white/50 text-left z-50">
+                                    <div class="flex items-center gap-2 mb-2 pb-2 border-b border-gray-100">
+                                        <i data-lucide="heart" class="w-4 h-4 text-theme-500 fill-rose-500"></i>
+                                        <span class="text-xs font-bold text-gray-800 uppercase tracking-wide">Love Language</span>
+                                    </div>
+                                    <h4 class="font-serif text-lg text-gray-900 leading-none mb-1">Quality Time</h4>
+                                    <p class="text-xs text-gray-600 leading-relaxed">
+                                        She feels most loved when you give her your undivided attention. Putting down the phone, making eye contact, and actively listening means more than gifts.
+                                    </p>
+                                    <!-- Arrow -->
+                                    <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 w-4 h-4 bg-white/95 transform rotate-45 border-r border-b border-white/50"></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RELATIONSHIP WISDOM -->
+                <div class="glass-panel rounded-2xl p-6 border-l-4 border-l-violet-400 relative overflow-visible sparkle-deco">
+                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-violet-400/10 rounded-full blur-2xl"></div>
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="wand-2" class="text-violet-500 w-5 h-5"></i>
+                        <h3 class="text-sm font-bold text-violet-600 uppercase tracking-wider">Relationship Wisdom</h3>
+                    </div>
+                    <div class="prose prose-sm text-gray-600 max-w-none">
+                        <p class="mb-3 font-serif text-lg leading-snug text-gray-800">
+                            "Holly has been incredibly supportive of your photography lately. It's a great time to reciprocate."
+                        </p>
+                        <p class="text-sm">
+                            Since she's diving into her own creative project this weekend, consider planning a quiet dinner where she can decompress.
+                        </p>
+                    </div>
+                    <div class="mt-4 flex gap-3">
+                        <button class="text-xs font-semibold bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg hover:bg-violet-200 transition-colors shadow-sm">
+                            Plan Dinner
+                        </button>
+                        <button class="text-xs font-semibold bg-white border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
+                            Ask Muse More
+                        </button>
+                    </div>
+                </div>
+
+                <!-- DAILY 5 WIDGET -->
+                <div class="glass-panel rounded-2xl p-1 flex items-center justify-between pr-6 glass-card-hover cursor-pointer group">
+                    <div class="flex items-center gap-4">
+                        <div class="h-20 w-20 rounded-xl bg-gradient-to-br from-rose-100 to-orange-100 flex items-center justify-center text-3xl group-hover:scale-105 transition-transform shadow-inner">
+                            🧠
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-800 text-lg tracking-tight">Make MFH Smarter</h4>
+                            <p class="text-xs text-gray-500 mt-1 font-medium">5 quick questions to deepen the brain.</p>
+                            <div class="mt-2 w-32 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-rose-400 w-1/5 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="h-8 w-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 group-hover:border-rose-300 group-hover:text-theme-500 transition-colors bg-white">
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- HEARTBOARD SECTION (Interactive Lightbox) -->
+                <div class="glass-panel rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="sparkles" class="text-violet-500 w-5 h-5"></i>
+                            <h3 class="font-serif text-xl text-gray-800">Heartboard</h3>
+                        </div>
+                        <button class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 font-medium">
+                            <i data-lucide="plus" class="w-3 h-3"></i> Save Idea
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <!-- Item 1 -->
+                        <div class="flex flex-col gap-2 group cursor-pointer" onclick="openLightbox('https://images.unsplash.com/photo-1615655406736-b37c4fabf923?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80', 'Vintage Necklace', 'Gift Idea', 'She mentioned wanting something delicate for her sister wedding.', ['$120', 'Jewelry'])">
+                            <div class="aspect-[3/4] rounded-xl overflow-hidden relative shadow-sm border border-white/50">
+                                <img src="https://images.unsplash.com/photo-1615655406736-b37c4fabf923?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" 
+                                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" crossOrigin="anonymous">
+                                <div class="absolute top-2 right-2 heartboard-tag px-2 py-0.5 rounded-full text-[10px] font-bold text-gray-700 shadow-sm backdrop-blur-md bg-white/90">
+                                    $120
+                                </div>
+                            </div>
+                            <div class="px-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-sm text-gray-800">Vintage Necklace</span>
+                                    <i data-lucide="gift" class="w-3 h-3 text-amber-500"></i>
+                                </div>
+                                <p class="text-[10px] text-gray-500 leading-tight mt-1 border-l-2 border-amber-200 pl-2">
+                                    "She mentioned wanting something delicate for her sister's wedding."
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Item 2 -->
+                        <div class="flex flex-col gap-2 group cursor-pointer" onclick="openLightbox('https://images.unsplash.com/photo-1613553507747-5f8d62ad5904?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80', 'Anniversary Cabin', 'Travel Goal', 'You said you both need a tech-free weekend to reconnect.', ['Travel', 'Nature'])">
+                            <div class="aspect-[3/4] rounded-xl overflow-hidden relative shadow-sm border border-white/50">
+                                <img src="https://images.unsplash.com/photo-1613553507747-5f8d62ad5904?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" 
+                                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" crossOrigin="anonymous">
+                            </div>
+                            <div class="px-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-sm text-gray-800">Anniversary Cabin</span>
+                                    <i data-lucide="map-pin" class="w-3 h-3 text-emerald-500"></i>
+                                </div>
+                                <p class="text-[10px] text-gray-500 leading-tight mt-1 border-l-2 border-emerald-200 pl-2">
+                                    "You said you both need a tech-free weekend to reconnect."
+                                </p>
+                            </div>
+                        </div>
+                        
+                         <!-- Item 3 -->
+                         <div class="hidden md:flex flex-col gap-2 group cursor-pointer" onclick="openLightbox('https://images.unsplash.com/photo-1555244162-803834f70033?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80', 'Corner Cafe', 'Date Night', 'A spot that reminds you of your first date vibes.', ['Food', 'Date'])">
+                            <div class="aspect-[3/4] rounded-xl overflow-hidden relative shadow-sm border border-white/50">
+                                <img src="https://images.unsplash.com/photo-1555244162-803834f70033?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" 
+                                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" crossOrigin="anonymous">
+                            </div>
+                            <div class="px-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-sm text-gray-800">Corner Cafe</span>
+                                    <i data-lucide="coffee" class="w-3 h-3 text-rose-500"></i>
+                                </div>
+                                <p class="text-[10px] text-gray-500 leading-tight mt-1 border-l-2 border-rose-200 pl-2">
+                                    "A spot that reminds you of your first date vibes."
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECENT MOMENTS -->
+                <div class="glass-panel rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-serif text-xl text-gray-800">Recent Moments</h3>
+                        <a href="#" class="text-xs text-rose-500 hover:underline font-medium">View Timeline</a>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <!-- Memory Card (Clickable for Lightbox too) -->
+                        <div class="bg-white/40 rounded-xl p-4 border border-white/50 shadow-sm transition-all hover:bg-white/60 cursor-pointer" onclick="openLightbox('https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80', 'Portrait Session', 'Memory', 'Holly was an incredibly supportive partner who embraced my photography hobby.', ['#photography', '#support'])">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center">
+                                        <i data-lucide="camera" class="w-3 h-3"></i>
+                                    </div>
+                                    <span class="text-xs font-bold text-gray-700 uppercase tracking-wide">Memory</span>
+                                </div>
+                                <span class="text-xs text-gray-400 font-medium">10h ago</span>
+                            </div>
+
+                            <div class="rounded-lg overflow-hidden mb-3 shadow-sm relative group">
+                                <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
+                                     class="w-full h-64 object-cover transform transition-transform duration-700 group-hover:scale-105" crossOrigin="anonymous">
+                            </div>
+
+                            <p class="text-sm text-gray-700 leading-relaxed mb-3 font-medium">
+                                Holly was an incredibly supportive partner who embraced my photography hobby, letting me set up a home studio. Her loving support made me feel incredibly lucky.
+                            </p>
+
+                            <div class="flex flex-wrap items-center gap-2 mt-2">
+                                <div class="flex items-center gap-1 text-xs text-gray-400 mr-2">
+                                    <i data-lucide="calendar" class="w-3 h-3"></i>
+                                    <span>Dec 7, 2025</span>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-full bg-rose-50/80 text-rose-600 text-[10px] font-bold border border-rose-100/50 hover:bg-rose-100 transition-colors cursor-pointer">
+                                    #photography
+                                </span>
+                                <span class="px-2.5 py-1 rounded-full bg-violet-50/80 text-violet-600 text-[10px] font-bold border border-violet-100/50 hover:bg-violet-100 transition-colors cursor-pointer">
+                                    #support
+                                </span>
+                                <span class="px-2.5 py-1 rounded-full bg-amber-50/80 text-amber-600 text-[10px] font-bold border border-amber-100/50 hover:bg-amber-100 transition-colors cursor-pointer">
+                                    #hobby
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- RIGHT COLUMN (Polished) -->
+            <aside class="col-span-1 md:col-span-12 lg:col-span-3 flex flex-col gap-6 sticky top-32">
+                
+                <!-- RELATIONSHIP SIGNALS -->
+                <div class="glass-panel rounded-2xl p-4 border border-rose-100/50 shadow-sm relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="activity" class="w-4 h-4 text-rose-500"></i>
+                            <span class="text-[10px] font-bold text-rose-400 uppercase tracking-widest">Signals</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1621184455862-c163dfb30e0f?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" 
+                                 class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm">
+                            <div class="absolute -bottom-1 -right-1 bg-green-400 w-3.5 h-3.5 rounded-full border-2 border-white"></div>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-800">Holly</h4>
+                            <div class="flex items-center gap-1.5 mt-0.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-violet-400"></span>
+                                <span class="text-[10px] text-gray-500 font-medium">Quality Time</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UPCOMING (Timeline Style) -->
+                <div class="glass-panel rounded-2xl p-5 relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Upcoming</h3>
+                        <a href="#" class="text-xs text-rose-500 hover:underline">View all</a>
+                    </div>
+                    
+                    <div class="space-y-6 relative timeline-line">
+                        <!-- Date 1 -->
+                        <div class="flex items-start gap-4 group cursor-pointer relative z-10">
+                            <div class="w-12 h-14 bg-white rounded-lg shadow-sm border border-gray-100 flex flex-col overflow-hidden text-center shrink-0">
+                                <div class="bg-rose-500 text-white text-[9px] font-bold py-0.5 uppercase">Oct</div>
+                                <div class="flex-1 flex items-center justify-center font-serif text-xl text-gray-800">24</div>
+                            </div>
+                            <div class="pt-1">
+                                <h4 class="text-sm font-bold text-gray-800 group-hover:text-rose-500 transition-colors">Dinner at Mario's</h4>
+                                <span class="text-xs text-gray-500 font-medium mt-0.5 block">7:00 PM • Reservation</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Date 2 -->
+                        <div class="flex items-start gap-4 group cursor-pointer relative z-10 opacity-75 hover:opacity-100 transition-opacity">
+                            <div class="w-12 h-14 bg-white/60 rounded-lg shadow-sm border border-gray-100 flex flex-col overflow-hidden text-center shrink-0">
+                                <div class="bg-gray-400 text-white text-[9px] font-bold py-0.5 uppercase">Nov</div>
+                                <div class="flex-1 flex items-center justify-center font-serif text-xl text-gray-600">12</div>
+                            </div>
+                            <div class="pt-1">
+                                <h4 class="text-sm font-bold text-gray-700 group-hover:text-rose-500 transition-colors">Holly's Presentation</h4>
+                                <span class="text-xs text-gray-500 font-medium mt-0.5 block">Send "Good Luck" text</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INTENTIONS (Clean Card Style) -->
+                <div class="glass-panel rounded-2xl p-5 border-t-4 border-t-emerald-400 relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="bg-emerald-100 text-emerald-600 w-5 h-5 rounded-full flex items-center justify-center">
+                                <i data-lucide="check" class="w-3 h-3 stroke-[3]"></i>
+                            </div>
+                            <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Intentions</h3>
+                        </div>
+                        <button class="text-gray-400 hover:text-emerald-500 transition-colors">
+                            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <div class="space-y-3">
+                        <!-- Intention 1 -->
+                        <div class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer group">
+                            <div class="flex gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i data-lucide="gift" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-800 leading-tight">Buy that vintage necklace</p>
+                                    <span class="inline-block mt-1.5 px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-wide">To Buy</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Intention 2 -->
+                        <div class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer group">
+                            <div class="flex gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-800 leading-tight">Plan hike at Starved Rock</p>
+                                    <span class="inline-block mt-1.5 px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 text-[10px] font-bold uppercase tracking-wide">To Plan</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full mt-4 py-2.5 rounded-xl border border-emerald-100 text-emerald-600 text-xs font-bold hover:bg-emerald-50 transition-colors">
+                        View all active
+                    </button>
+                </div>
+
+            </aside>
+
+        </div>
+    </main>
+
+    <!-- LIGHTBOX MODAL -->
+    <div id="lightbox" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 lightbox" onclick="closeLightbox(event)">
+        <div class="relative w-full max-w-4xl bg-transparent flex flex-col md:flex-row gap-0 rounded-3xl overflow-hidden shadow-2xl max-h-[90vh]" onclick="event.stopPropagation()">
+            <!-- Close Button -->
+            <button onclick="closeLightbox(null)" class="absolute top-4 right-4 z-50 w-10 h-10 bg-black/20 hover:bg-black/40 text-white rounded-full flex items-center justify-center transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+
+            <!-- Image Side -->
+            <div class="w-full md:w-2/3 bg-black flex items-center justify-center">
+                <img id="lightbox-img" src="" class="w-full h-full object-contain lightbox-img" alt="Enlarged view">
+            </div>
+
+            <!-- Context Side -->
+            <div class="w-full md:w-1/3 bg-white p-8 flex flex-col">
+                <div class="flex items-center gap-2 mb-4">
+                    <span id="lightbox-category" class="px-3 py-1 rounded-full bg-rose-50 text-rose-600 text-xs font-bold uppercase tracking-wide">Category</span>
+                </div>
+                
+                <h2 id="lightbox-title" class="font-serif text-3xl text-gray-900 mb-4 leading-tight">Title</h2>
+                
+                <div class="flex-1 overflow-y-auto pr-2">
+                    <p id="lightbox-caption" class="text-sm text-gray-600 leading-relaxed font-medium">
+                        Caption text goes here.
+                    </p>
+                </div>
+
+                <!-- Tags Area -->
+                <div id="lightbox-tags" class="flex flex-wrap gap-2 mt-6 pt-6 border-t border-gray-100">
+                    <!-- Tags injected here -->
+                </div>
+
+                <!-- Action Button -->
+                <button class="mt-6 w-full py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
+                    <i data-lucide="check" class="w-4 h-4"></i> Mark as Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAB BACKDROP -->
+    <div id="fabBackdrop" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 fab-backdrop" onclick="toggleFab()"></div>
+
+    <!-- FAB -->
+    <div class="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-3" data-html2canvas-ignore="true">
+        <div id="fabMenu" class="fab-menu flex flex-col items-end gap-3 mb-2">
+            <button class="fab-item flex items-center gap-3 group">
+                <span class="bg-white/90 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0">Ask Muse</span>
+                <div class="w-12 h-12 rounded-full bg-violet-100 text-violet-600 shadow-lg flex items-center justify-center hover:scale-110 transition-transform">
+                    <i data-lucide="wand-2" class="w-5 h-5"></i>
+                </div>
+            </button>
+            <button class="fab-item flex items-center gap-3 group">
+                <span class="bg-white/90 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0">Inside Joke</span>
+                <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 shadow-lg flex items-center justify-center hover:scale-110 transition-transform">
+                    <i data-lucide="laugh" class="w-5 h-5"></i>
+                </div>
+            </button>
+            <button class="fab-item flex items-center gap-3 group">
+                <span class="bg-white/90 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0">Log Mood</span>
+                <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 shadow-lg flex items-center justify-center hover:scale-110 transition-transform">
+                    <i data-lucide="smile" class="w-5 h-5"></i>
+                </div>
+            </button>
+            <button class="fab-item flex items-center gap-3 group">
+                <span class="bg-white/90 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0">Plan Date</span>
+                <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 shadow-lg flex items-center justify-center hover:scale-110 transition-transform">
+                    <i data-lucide="calendar-heart" class="w-5 h-5"></i>
+                </div>
+            </button>
+            <button class="fab-item flex items-center gap-3 group">
+                <span class="bg-white/90 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0">Gift Idea</span>
+                <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 shadow-lg flex items-center justify-center hover:scale-110 transition-transform">
+                    <i data-lucide="gift" class="w-5 h-5"></i>
+                </div>
+            </button>
+             <button class="fab-item flex items-center gap-3 group">
+                <span class="bg-white/90 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0">Quick Note</span>
+                <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 shadow-lg flex items-center justify-center hover:scale-110 transition-transform">
+                    <i data-lucide="pen-line" class="w-5 h-5"></i>
+                </div>
+            </button>
+        </div>
+        <button id="fabBtn" onclick="toggleFab()" class="w-16 h-16 rounded-full bg-gradient-to-tr from-rose-500 to-violet-500 text-white shadow-lg shadow-rose-500/40 flex items-center justify-center text-3xl hover:scale-105 transition-all duration-300 z-50">
+            <i data-lucide="plus" class="w-8 h-8 transition-transform duration-300" id="fabIcon"></i>
+        </button>
+    </div>
+
+    <script>
+        // Init Lucide
+        lucide.createIcons();
+
+        function toggleTheme() {
+            const root = document.documentElement;
+            // Check if we are currently in 'Rose' (default) or 'Ocean'
+            // We can check one variable, e.g., --primary-500
+            const currentMainColor = getComputedStyle(root).getPropertyValue('--primary-500').trim();
+            
+            // Default Rose Hex: #f43f5e
+            // Ocean Hex: #0ea5e9
+            
+            if (currentMainColor === '#f43f5e') {
+                // Switch to Ocean
+                root.style.setProperty('--primary-50', '#f0f9ff');
+                root.style.setProperty('--primary-100', '#e0f2fe');
+                root.style.setProperty('--primary-200', '#bae6fd');
+                root.style.setProperty('--primary-300', '#7dd3fc');
+                root.style.setProperty('--primary-400', '#38bdf8');
+                root.style.setProperty('--primary-500', '#0ea5e9');
+                root.style.setProperty('--primary-600', '#0284c7');
+            } else {
+                // Switch back to Rose
+                root.style.setProperty('--primary-50', '#fff1f2');
+                root.style.setProperty('--primary-100', '#ffe4e6');
+                root.style.setProperty('--primary-200', '#fecdd3');
+                root.style.setProperty('--primary-300', '#fda4af');
+                root.style.setProperty('--primary-400', '#fb7185');
+                root.style.setProperty('--primary-500', '#f43f5e');
+                root.style.setProperty('--primary-600', '#e11d48');
+            }
+        }
+
+        function toggleFab() {
+            const menu = document.getElementById('fabMenu');
+            const backdrop = document.getElementById('fabBackdrop');
+            const icon = document.getElementById('fabIcon');
+            const btn = document.getElementById('fabBtn');
+
+            menu.classList.toggle('active');
+            backdrop.classList.toggle('active');
+            
+            if (menu.classList.contains('active')) {
+                icon.style.transform = 'rotate(45deg)';
+                btn.classList.add('scale-110');
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+                btn.classList.remove('scale-110');
+            }
+        }
+
+        const navLinks = document.querySelectorAll('#main-nav a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                navLinks.forEach(l => {
+                    l.className = "flex items-center gap-3 px-4 py-3.5 rounded-2xl hover:bg-white/40 text-gray-500 hover:text-gray-900 transition-all group";
+                    // Lucide replaces the <i> with <svg>, so we look for svg
+                    const icon = l.querySelector('svg');
+                    if(icon) {
+                        icon.classList.remove('text-rose-600');
+                        icon.classList.add('text-gray-400');
+                        icon.classList.add('group-hover:text-rose-500'); // Re-add hover class logic if needed
+                    }
+                });
+                link.className = "nav-item-active flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all group";
+                const activeIcon = link.querySelector('svg');
+                if (activeIcon) {
+                    activeIcon.classList.remove('text-gray-400');
+                    activeIcon.classList.remove('group-hover:text-rose-500');
+                    // Color is handled by CSS rule for nav-item-active but we can enforce it here if needed
+                }
+            });
+        });
+
+        // Screenshot Function
+        function takeScreenshot() {
+            // Target the area we want to capture (the main content + the sidebar)
+            // But we ignore the top nav specifically via a data attribute in html2canvas config
+            // In this setup, we capture body but ignore elements with data-html2canvas-ignore
+            
+            const element = document.body;
+            
+            html2canvas(element, {
+                useCORS: true, // Attempt to load cross-origin images (like Unsplash)
+                allowTaint: true,
+                backgroundColor: null, // Transparent bg if possible, or body bg
+                scale: 2, // Retina quality
+            }).then(canvas => {
+                // Convert canvas to image
+                const image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+                
+                // Create link to download
+                const link = document.createElement('a');
+                link.download = 'mfh-dashboard.png';
+                link.href = image;
+                link.click();
+            }).catch(err => {
+                console.error("Screenshot failed:", err);
+                alert("Could not capture screenshot. Check console for CORS errors.");
+            });
+        }
+
+        // DRAG TO REPOSITION LOGIC
+        // We use a small flag to distinguish between dragging and clicking
+        const image = document.getElementById('heroImage');
+        const heroCard = document.getElementById('heroCard');
+        let isDragging = false;
+        let startX, startY;
+        let bgPosX = 50; // Initial percentage
+        let bgPosY = 50; // Initial percentage
+        let hasMoved = false; // Flag to check if drag occurred
+
+        image.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            hasMoved = false;
+            image.classList.add('dragging');
+            startX = e.clientX;
+            startY = e.clientY;
+            e.preventDefault(); // Prevent default drag behavior
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+
+            // Only mark as moved if drag is significant (e.g. > 3px)
+            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+                hasMoved = true;
+            }
+
+            // Sensitivity factor - lower is slower
+            const sensitivity = 0.2;
+
+            // Update positions
+            bgPosX -= dx * sensitivity;
+            bgPosY -= dy * sensitivity;
+
+            // Clamp values between 0 and 100
+            bgPosX = Math.max(0, Math.min(100, bgPosX));
+            bgPosY = Math.max(0, Math.min(100, bgPosY));
+
+            // Apply new position
+            image.style.objectPosition = `${bgPosX}% ${bgPosY}%`;
+
+            startX = e.clientX;
+            startY = e.clientY;
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            if (isDragging) {
+                isDragging = false;
+                image.classList.remove('dragging');
+                
+                // If it was just a click (no significant move), open lightbox
+                // But only if the click target was the image itself (not a button on top)
+                if (!hasMoved && e.target === image) {
+                    openLightbox(
+                        image.src, 
+                        'Holly & Joe', 
+                        'Profile', 
+                        'Together since 2012. Love lives in the details.', 
+                        ['#us', '#love']
+                    );
+                }
+            }
+        });
+
+        // TOOLTIP TOGGLE LOGIC (For Mobile/Click)
+        function toggleTooltip(element) {
+            element.classList.toggle('active');
+            // Close other tooltips if any
+            document.querySelectorAll('.group\\/tooltip').forEach(el => {
+                if(el !== element) el.classList.remove('active');
+            });
+        }
+
+        // Close tooltip when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.group\\/tooltip')) {
+                document.querySelectorAll('.group\\/tooltip').forEach(el => {
+                    el.classList.remove('active');
+                });
+            }
+        });
+
+        // LIGHTBOX LOGIC
+        function openLightbox(imgSrc, title, category, caption, tags) {
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            const titleEl = document.getElementById('lightbox-title');
+            const catEl = document.getElementById('lightbox-category');
+            const captionEl = document.getElementById('lightbox-caption');
+            const tagsEl = document.getElementById('lightbox-tags');
+
+            img.src = imgSrc;
+            titleEl.textContent = title;
+            catEl.textContent = category;
+            captionEl.textContent = caption;
+
+            // Clear and add tags
+            tagsEl.innerHTML = '';
+            if (tags && tags.length > 0) {
+                tags.forEach(tag => {
+                    const span = document.createElement('span');
+                    span.className = 'px-3 py-1 bg-gray-100 rounded-full text-xs text-gray-600 font-medium';
+                    span.textContent = tag;
+                    tagsEl.appendChild(span);
+                });
+            }
+
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function closeLightbox(e) {
+            // Close if clicking overlay or close button, but not if clicking content
+            if (e === null || e.target.classList.contains('lightbox') || e.target.closest('button')) {
+                const lightbox = document.getElementById('lightbox');
+                lightbox.classList.remove('active');
+                document.body.style.overflow = 'auto'; // Re-enable scrolling
+            }
+        }
+    </script>
+</body>
+</html>
